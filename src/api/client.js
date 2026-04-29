@@ -1,4 +1,4 @@
-﻿import { DEFAULT_CATEGORIES, mergeCategories } from '../utils/categories';
+import { DEFAULT_CATEGORIES, mergeCategories } from '../utils/categories';
 import { toISODate } from '../utils/formatters';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -133,9 +133,6 @@ async function requestApi(action, { method = 'POST', payload, params = {}, token
     const query = new URLSearchParams({ action, ...params });
     const response = await fetch(`${API_BASE}?${query.toString()}`, {
       method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
     });
 
     return parseApiResponse(response);
@@ -143,10 +140,6 @@ async function requestApi(action, { method = 'POST', payload, params = {}, token
 
   const response = await fetch(API_BASE, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
     body: JSON.stringify({
       action,
       payload,
@@ -158,21 +151,10 @@ async function requestApi(action, { method = 'POST', payload, params = {}, token
 }
 
 async function requestWithFallback(action, config, fallbackFn) {
-  const apiAvailable = canUseApi();
-
   try {
     const data = await requestApi(action, config);
     return ensureSuccess(data);
   } catch (error) {
-    // Agar API configured hai, to mock fallback nahi chalana.
-    // Isse CORS / Apps Script / response error clearly dikhega.
-    if (apiAvailable) {
-      return {
-        ok: false,
-        error: error.message || 'Live API request failed',
-      };
-    }
-
     if (!fallbackFn) {
       return {
         ok: false,
@@ -191,6 +173,7 @@ async function requestWithFallback(action, config, fallbackFn) {
     }
   }
 }
+
 function verifyAllowedEmail(email = '') {
   if (!email) return false;
   if (!APPROVED_USERS.length) return true;
