@@ -36,9 +36,9 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_API_BASE: ${{ secrets.VITE_API_BASE || '' }}
+          VITE_API_BASE: ${{ secrets.VITE_API_BASE || vars.VITE_API_BASE || '' }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID || vars.VITE_GOOGLE_CLIENT_ID || '' }}
-          VITE_APPROVED_USERS: ${{ vars.VITE_APPROVED_USERS || '' }}
+          VITE_APPROVED_USERS: ${{ secrets.VITE_APPROVED_USERS || vars.VITE_APPROVED_USERS || '' }}
           VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH || '' }}
 
       - name: Upload pages artifact
