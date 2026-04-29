@@ -158,10 +158,21 @@ async function requestApi(action, { method = 'POST', payload, params = {}, token
 }
 
 async function requestWithFallback(action, config, fallbackFn) {
+  const apiAvailable = canUseApi();
+
   try {
     const data = await requestApi(action, config);
     return ensureSuccess(data);
   } catch (error) {
+    // Agar API configured hai, to mock fallback nahi chalana.
+    // Isse CORS / Apps Script / response error clearly dikhega.
+    if (apiAvailable) {
+      return {
+        ok: false,
+        error: error.message || 'Live API request failed',
+      };
+    }
+
     if (!fallbackFn) {
       return {
         ok: false,
@@ -180,7 +191,6 @@ async function requestWithFallback(action, config, fallbackFn) {
     }
   }
 }
-
 function verifyAllowedEmail(email = '') {
   if (!email) return false;
   if (!APPROVED_USERS.length) return true;
